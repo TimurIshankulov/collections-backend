@@ -18,6 +18,7 @@ from .serializers import (SignUpSerializer, UserSerializer, ProfileSerializer,
                           CardSerializer, CollectionSerializer, CardEntrySerializer)
 from .models import Card, Collection, CardEntry
 
+# Static variables with error description
 MESSAGE_USER_CREATED_SUCCESS = 'Успех. Пользователь создан.'
 MESSAGE_ADD_CARD_TO_COLLECTION_SUCCESS = 'Успех. Карточка добавлена в коллекцию.'
 MESSAGE_TURN_TO_DUST_SUCCESS = 'Успех. Карточка превращена в пыль.'
@@ -35,6 +36,7 @@ random.seed()
 
 
 class SignUpView(generics.GenericAPIView):
+    """View for signing up"""
     permission_classes = [permissions.AllowAny]
     serializer_class = SignUpSerializer
 
@@ -48,6 +50,7 @@ class SignUpView(generics.GenericAPIView):
 
 
 class UserView(generics.GenericAPIView):
+    """View for User"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
 
@@ -57,6 +60,7 @@ class UserView(generics.GenericAPIView):
 
 
 class ProfileView(generics.GenericAPIView):
+    """View for Profile"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProfileSerializer
 
@@ -66,11 +70,13 @@ class ProfileView(generics.GenericAPIView):
 
 
 class CardPagination(pagination.PageNumberPagination):
+    """Pagination class for Card list"""
     page_size = 18
     page_size_query_param = 'page_size'
 
 
 class CardViewSet(viewsets.ModelViewSet):
+    """ViewSet for Cards. Lookup field is 'id'."""
     search_fields = ['name', 'short_description', 'long_description']
     filter_backends = (filters.SearchFilter,)
     serializer_class = CardSerializer
@@ -81,12 +87,14 @@ class CardViewSet(viewsets.ModelViewSet):
 
 
 class CollectionPagination(pagination.PageNumberPagination):
+    """Pagination class for Collection list"""
     page_size = 10
     page_size_query_param = 'page_size'
     ordering = 'created'
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
+    """ViewSet for Collections. Lookup field is 'id'."""
     search_fields = ['name', 'description']
     filter_backends = (filters.SearchFilter,)
     serializer_class = CollectionSerializer
@@ -97,11 +105,13 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
 
 class MyCardsPagination(pagination.PageNumberPagination):
+    """Pagination class for MyCards list"""
     page_size = 18
     page_size_query_param = 'page_size'
 
 
 class MyCardsViewSet(viewsets.ModelViewSet):
+    """ViewSet for MyCards. Lookup field is 'id'."""
     search_fields = ['name', 'short_description', 'long_description']
     filter_backends = (filters.SearchFilter,)
     serializer_class = CardEntrySerializer
@@ -116,6 +126,13 @@ class MyCardsViewSet(viewsets.ModelViewSet):
 
 
 class AddCardToCollectionView(generics.GenericAPIView):
+    """
+    View for adding card to User's collection.
+    Checks if CardEntry exists, if user in request is the same user in
+    CardEntry and if Card is not already in a collection. If everything
+    is ok, adds card to a collection, checks if collection is completed
+    and adds it to collection list if completed.
+    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CardSerializer
 
@@ -161,6 +178,11 @@ class AddCardToCollectionView(generics.GenericAPIView):
 
 
 class AddCardView(generics.GenericAPIView):
+    """
+    Adds card to a User card list.
+    If source is daily Card, then checks the data when last card was
+    acquired. Randomize the card that User will receive and adds CardEntry.
+    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CardEntrySerializer
 
@@ -185,9 +207,9 @@ class AddCardView(generics.GenericAPIView):
         chance = random.randint(1, 100)
         if chance <= 70:
             rarity = 'common'
-        elif chance > 70 and chance <= 90:
+        elif 70 < chance <= 90:
             rarity = 'rare'
-        elif chance > 90 and chance <= 100:
+        elif 90 < chance <= 100:
             rarity = 'epic'
 
         cards = list(Card.objects.filter(rarity=rarity).all())
@@ -203,6 +225,11 @@ class AddCardView(generics.GenericAPIView):
 
 
 class AddCardAdminView(generics.GenericAPIView):
+    """
+    Adds card to a User card list.
+    This is admin view. No restriction defined.
+    Randomize the card that User will receive and adds CardEntry.
+    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CardEntrySerializer
 
@@ -215,9 +242,9 @@ class AddCardAdminView(generics.GenericAPIView):
         chance = random.randint(1, 100)
         if chance <= 70:
             rarity = 'common'
-        elif chance > 70 and chance <= 90:
+        elif 70 < chance <= 90:
             rarity = 'rare'
-        elif chance > 90 and chance <= 100:
+        elif 90 < chance <= 100:
             rarity = 'epic'
 
         cards = list(Card.objects.filter(rarity=rarity).all())
@@ -233,6 +260,10 @@ class AddCardAdminView(generics.GenericAPIView):
 
 
 class CraftCardView(generics.GenericAPIView):
+    """
+    View for crafting cards.
+    Checks if User has enough dust and adds CardEntry.
+    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CardEntrySerializer
 
@@ -264,6 +295,7 @@ class CraftCardView(generics.GenericAPIView):
 
 
 class TurnCardIntoDustView(generics.GenericAPIView):
+    """View for turning card into a dust. Adds dust to a profile."""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CardSerializer
 
@@ -289,6 +321,7 @@ class TurnCardIntoDustView(generics.GenericAPIView):
 
 
 class CardsBulkView(generics.GenericAPIView):
+    """View for multiple Card set. Returns the list with cards specified."""
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -325,6 +358,7 @@ class CardsBulkView(generics.GenericAPIView):
 
 
 class CollectionProgressView(generics.GenericAPIView):
+    """View for collection progress"""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -345,6 +379,7 @@ class CollectionProgressView(generics.GenericAPIView):
 
 
 class GetUserStatisticsView(generics.GenericAPIView):
+    """View for User statistics across collected Cards and Collections"""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -362,6 +397,7 @@ class GetUserStatisticsView(generics.GenericAPIView):
 
 
 class IsAddableToCollectionView(generics.GenericAPIView):
+    """View for checking if Card is addable to a Collection"""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -384,6 +420,7 @@ class IsAddableToCollectionView(generics.GenericAPIView):
 
 
 class IsDailyCardAvailableView(generics.GenericAPIView):
+    """View for checking if daily Card available to obtain"""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -402,6 +439,7 @@ class IsDailyCardAvailableView(generics.GenericAPIView):
 
 
 class IsCraftableView(generics.GenericAPIView):
+    """View for checking if Card is craftable"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CardEntrySerializer
 

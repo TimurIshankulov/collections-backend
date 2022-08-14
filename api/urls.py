@@ -6,6 +6,7 @@ from .views import (SignUpView, UserView, ProfileView, AddCardToCollectionView,
                     IsAddableToCollectionView, IsDailyCardAvailableView, IsCraftableView)
 from .views import CardViewSet, CollectionViewSet, MyCardsViewSet
 
+# Default router for ViewSets
 router = DefaultRouter()
 router.register('cards', CardViewSet, basename='cards')
 router.register('collections', CollectionViewSet, basename='collections')

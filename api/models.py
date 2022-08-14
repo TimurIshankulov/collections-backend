@@ -7,7 +7,9 @@ from django.dispatch import receiver
 
 from ckeditor_uploader.fields import RichTextUploadingField
 
+
 class Card(models.Model):
+    """Class describes Card entity"""
     name = models.CharField(max_length=100, unique=True)
     short_description = models.CharField(max_length=200)
     long_description = RichTextUploadingField()
@@ -25,6 +27,7 @@ class Card(models.Model):
 
 
 class Collection(models.Model):
+    """Class describes Collection entity"""
     name = models.CharField(max_length=100, unique=True)
     short_description = models.CharField(max_length=500)
     long_description = RichTextUploadingField()
@@ -40,6 +43,7 @@ class Collection(models.Model):
 
 
 class CardEntry(models.Model):
+    """Class describes CardEntry entity"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     card = models.ForeignKey('Card', on_delete=models.CASCADE)
     source = models.CharField(max_length=50)
@@ -47,16 +51,21 @@ class CardEntry(models.Model):
 
 
 class Profile(models.Model):
+    """Class describes Profile entity"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     cards = models.ManyToManyField('Card', blank=True)
     collections = models.ManyToManyField('Collection', blank=True)
     dust = models.IntegerField(default=0)
 
+
+# Create Profile within user creation
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
 
+
+# Update Profile if user saved
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()

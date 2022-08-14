@@ -2,8 +2,9 @@ from rest_framework import serializers
 from .models import Card, Collection, CardEntry, Profile
 from django.contrib.auth.models import User
 
-class SignUpSerializer(serializers.ModelSerializer):
 
+class SignUpSerializer(serializers.ModelSerializer):
+    """Serializer fo signing up"""
     password2 = serializers.CharField(write_only=True)
 
     class Meta:
@@ -28,30 +29,35 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Serializer for User entity"""
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined']
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    """Serializer for Profile entity"""
     class Meta:
         model = Profile
         fields = '__all__'
 
 
 class CardSerializer(serializers.ModelSerializer):
+    """Serializer for Card entity"""
     class Meta:
         model = Card
         fields = '__all__'
 
 
 class CollectionSerializer(serializers.ModelSerializer):
+    """Serializer for Collection entity"""
     class Meta:
         model = Collection
         fields = '__all__'
 
 
 class CardEntrySerializer(serializers.ModelSerializer):
+    """Serializer for CardEntry entity"""
     class Meta:
         model = CardEntry
         fields = '__all__'
